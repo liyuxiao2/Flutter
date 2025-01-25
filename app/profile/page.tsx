@@ -9,11 +9,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 export default function Profile() {
   const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    budgetPreference: "$100",
-    allergies: "Peanuts",
-    favoriteActivities: "Hiking, Movies, Cooking",
+    name: "",
+    email: "",
+    budgetPreference: "",
+    allergies: "",
+    favoriteActivities: "",
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -23,8 +23,7 @@ export default function Profile() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle profile update logic here
-    console.log(profile)
+    
   }
 
   return (
