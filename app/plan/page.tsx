@@ -24,7 +24,10 @@ export default function PlanDate() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Handle form submission and API call to generate itinerary
-    console.log(formData)
+    
+
+
+    
   }
 
   return (
