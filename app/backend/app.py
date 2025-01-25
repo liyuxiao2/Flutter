@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
-import google.generativeai as genai
-import json
-import re
+import os
+import openai
+
+load_dotenv()
+openai_api_key = os.getenv("OPENAI_API_KEY")
+
 
 load_dotenv()
 
@@ -48,16 +51,33 @@ def update_profile():
     #TODO
 
 
-'''@app.route('/analyze', methods=['POST', 'OPTIONS'])
-def analyze_injury():
-    #TODO
-    if request.method == 'OPTIONS':
-        response = jsonify({'message': 'OK'})
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
-        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        return response
+'''
+
+@app.route('/plan', methods=['POST', 'OPTIONS'])
+def generate_plan():
+   #TODO
+   try{
+        data = request.json
+
+        openai.api_key = openai_api_key
+
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": data["query"]}
+            ]
+        )
+
+        # Extract the generated response
+        generated_text = response["choices"][0]["message"]["content"]
+
+        return jsonify({"response": generated_text}), 200
+   }
+   except Exception as e:
+        return jsonify({"error": str(e)}), 500
+   
+   
 
 
 

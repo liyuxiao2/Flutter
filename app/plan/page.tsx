@@ -16,19 +16,38 @@ export default function PlanDate() {
     inspiration: "",
   })
 
+
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prevState) => ({ ...prevState, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle form submission and API call to generate itinerary
-    
 
 
+  const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault()
+
+      try{
+        const response = await fetch('http://127.0.0.1:5000/plan', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
     
-  }
+        const result = await response.json();
+
+
+        console.log(result)
+      }
+      catch (error) {
+        console.log('ERROR', error);
+
+      }
+    }
+    
 
   return (
     <Card className="w-[600px]">
