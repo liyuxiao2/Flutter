@@ -7,12 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ChevronLeft, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link"
 import Image from 'next/image'
 import planBkg from '../images/plan bkg.png'
-
+import { useRouter } from "next/navigation";
 
 export default function PlanDate() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     budget: 80,
     time: 3,
@@ -32,7 +32,7 @@ export default function PlanDate() {
     aesthetic: ["Casual", "Romantic"],
     location: [],
     allergies: ["Peanuts", "Vegan"],
-    inspiration: ["Joanna's Pinterest Board"],
+    inspiration: [],
   });
   
 
@@ -91,8 +91,7 @@ export default function PlanDate() {
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
-    setResponseData(null);
-  
+
     try {
       const response = await fetch("http://127.0.0.1:5000/plan", {
         method: "POST",
@@ -103,19 +102,27 @@ export default function PlanDate() {
           budget: formData.budget.toString(),
           time: `${formData.time} hours`,
           style: tags.aesthetic,
-          location: tags.location, // Send location tags to the backend
+          location: tags.location,
           dietary: tags.allergies,
           inspiration: tags.inspiration,
         }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
       }
-  
+
       const result = await response.json();
-      setResponseData(result);
+      console.log("result", result);
+
+      // Redirect to the `/choices` page with itinerary data passed as query parameters
+      const queryParams = new URLSearchParams({
+        categories: JSON.stringify(result.restaurants || []),
+        activities: JSON.stringify(result.activities || []),
+      });
+
+      router.push(`/choices?${queryParams.toString()}`);
     } catch (error) {
       console.error("Error:", error);
       setError(error instanceof Error ? error.message : "An unknown error occurred");
