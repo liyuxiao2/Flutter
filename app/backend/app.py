@@ -1,21 +1,25 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
-import google.generativeai as genai
+import os
+import openai
+from openai import OpenAI
 import json
-import re
 
-load_dotenv()
+
+
+openai.api_key = os.environ.get("OPENAI_API_KEY")
+
 
 app = Flask(__name__)
 
-CORS(app,
-     resources={r"/*": {
-         "origins": ["http://localhost:3000"],
-         "methods": ["GET", "POST", "OPTIONS"],
-         "allow_headers": ["Content-Type", "Authorization"],
-         "supports_credentials": True
-     }})
+CORS(
+    app,
+    resources={r"/*": {"origins": "http://localhost:3000"}},
+    supports_credentials=True
+)
+
+
 
 
 
@@ -25,27 +29,166 @@ user_profiles = {}
 
 @app.route('/profile', methods=['POST'])
 def update_profile():
-    
+    try:
+        # Parse JSON data from the request
+        data = request.json
+
+        # Validate required fields
+        required_fields = ["name", "email", "budgetPreference", "allergies", "favoriteActivities"]
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
+
+        # Extract the user's email to identify the profile
+        email = data["email"]
+
+        # Update or create the profile in the dictionary
+        user_profiles[email] = {
+            "name": data["name"],
+            "budgetPreference": data["budgetPreference"],
+            "allergies": data["allergies"],
+            "favoriteActivities": data["favoriteActivities"]
+        }
+
+        return jsonify({"message": "Profile updated successfully!", "profile": user_profiles[email]}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     #TODO
-
-
-@app.route('/analyze', methods=['POST', 'OPTIONS'])
-def analyze_injury():
-    #TODO
-    if request.method == 'OPTIONS':
-        response = jsonify({'message': 'OK'})
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
-        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        return response
-
-
-
-@app.route('/diet', methods=['POST'])
-def analyze_diet():
-    #TODO
     
     
+
+@app.route('/plan', methods=['POST'])
+def generate_plan():
+    try:
+        print("Request received at /plan")
+        
+        # Parse the JSON payload
+        data = request.json
+        print(f"Payload received: {data}")
+
+        if not data:
+            return jsonify({"error": "No data provided in the request"}), 400
+
+        user_profile = data.get("profile", {})
+        profile_section = ""
+
+        if user_profile:
+            profile_section = f"""
+            User Profile Data:
+            - Name: {user_profile.get('name', 'N/A')}
+            - Email: {user_profile.get('email', 'N/A')}
+            - Budget Preference: {user_profile.get('budgetPreference', 'N/A')}
+            - Allergies: {user_profile.get('allergies', 'N/A')}
+            - Favorite Activities: {user_profile.get('favoriteActivities', 'N/A')}
+            """
+            print(f"User profile included in the prompt: {profile_section}")
+
+        required_fields = ["budget", "time", "style", "dietary", "inspiration"]
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
+        
+        
+        budget = data.get("budget", "Moderate")
+        time = data.get("time", "Evening")
+        style = data.get("style", "Romantic")
+        dietary = data.get("dietary", "None")
+        inspiration = data.get("inspiration", [])
+        
+        if not isinstance(inspiration, list):
+            inspiration = [inspiration]  # Convert to list if it's a single string
+
+        
+        
+        # Construct the prompt
+        prompt = f"""Plan a date based on the following preferences:
+        - Budget: {budget}
+        - Time Constraint: {time}
+        - Style Preference: {style}
+        - Dietary Preferences/Allergies: {dietary}
+        - Inspiration: {inspiration}
+
+        {profile_section}
+
+        Provide a detailed plan, where each activity and restaurant is an individual entry. Output the response in valid JSON format with the following structure:
+        {{
+            "activities": [
+                {{
+                    "name": "Activity name",
+                    "description": "A brief description of the activity, including its location or purpose.",
+                    "time": "Suggested time for this activity (if applicable).",
+                    "GoogleReview: link to google review"
+                }},
+                ...
+            ],
+            "restaurants": [
+                {{
+                    "name": "Restaurant name",
+                    "description": "A brief description of the restaurant, why it fits the theme, or what makes it unique.",
+                    "address": "Restaurant address",
+                    "cuisine": "Type of cuisine",
+                    "rating": "Rating (if available).",
+                    "GoogleReview: link to google review"
+                }},
+                ...
+            ]
+        }}
+
+        Ensure the JSON format is valid, concise, and includes all necessary details for each entry."""
+
+
+        # Generate a response using OpenAI API
+        response = openai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant specialized in planning personalized dates."},
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt + " Use the image links to help style the theme around the date"},
+                    # Add multiple image links dynamically
+                    *[
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": image_url},
+                        }
+                        for image_url in inspiration  # `image_links` is a list of URLs
+                    ],
+                ],
+            },
+        ],
+)
+
+        
+
+
+        # Access the response content
+        generated_text = response.choices[0].message.content
+        
+        
+        print(generated_text)
+        
+        
+        try:
+            # Remove triple backticks and ensure it's valid JSON
+            clean_json = generated_text.strip("```").strip("json").strip()
+            parsed_response = json.loads(clean_json)
+        except json.JSONDecodeError as e:
+            print(f"Error parsing JSON: {e}")
+            return jsonify({"error": "Failed to parse JSON response"}), 500
+
+        # Return the parsed JSON as the response
+        return jsonify(parsed_response), 200
+
+    except KeyError as e:
+        print(f"KeyError: {e}")
+        return jsonify({"error": f"Missing key: {str(e)}"}), 400
+
+    except Exception as e:
+        print(f"Unhandled Exception: {e}")
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True)

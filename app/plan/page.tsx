@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,7 @@ export default function PlanDate() {
     aesthetic: "",
     allergies: "",
     inspiration: "",
-  })
+  });
 
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
   const [tags, setTags] = useState({
@@ -250,7 +250,6 @@ export default function PlanDate() {
                     className="overflow-hidden"
                   >
                     <div className="mt-2">
-                      
                       <div className="relative">
                         <Input
                           value={formData.allergies}
@@ -296,82 +295,4 @@ export default function PlanDate() {
           {/* Inspiration Card */}
           <Card className="shadow-sm rounded-2xl">
             <div className="w-full p-6">
-              <div onClick={() => toggleSection("inspiration")} className="w-full cursor-pointer">
-                <div className="flex justify-between items-center">
-                  <h2 className={`font-serif ${expandedSection === "inspiration" ? "text-3xl" : "text-2xl"}`}>
-                    Inspiration
-                  </h2>
-                  {(!expandedSection || expandedSection !== "inspiration") && (
-                    <span className="text-gray-500">Add links</span>
-                  )}
-                </div>
-              </div>
-              <AnimatePresence>
-                {expandedSection === "inspiration" && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mt-1">
-                      <p className="text-sm text-gray-600 mb-4">
-                        Link Pinterest boards or pictures of things you both like
-                      </p>
-            
-                      <div className="relative">
-                        <Input
-                          value={formData.inspiration}
-                          onChange={handleChange}
-                          name="inspiration"
-                          placeholder="Pinterest.com/inspiration"
-                          className="pr-12 rounded-full"
-                          onClick={(e) => e.stopPropagation()}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              addTag("inspiration", formData.inspiration)
-                            }
-                          }}
-                        />
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-orange-100 hover:bg-orange-200"
-                          onClick={(e) => addTag("inspiration", formData.inspiration, e)}
-                        >
-                          <Heart className="h-4 w-4 text-[#FC7A4B]" />
-                        </Button>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {tags.inspiration.map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="bg-[#97AEEF] text-white hover:bg-[#7B97E8]"
-                            onClick={() => removeTag("inspiration", tag)}
-                          >
-                            {tag} ×
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </Card>
-        </div>
-      </div>
-
-      {/* Sticky Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
-          <button className="text-gray-500 hover:text-gray-700">Clear All</button>
-          <Button className="px-8 py-2 bg-[#FC7A4B] hover:bg-[#FC7A4B]/90 text-white rounded-full">Plan</Button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
+              <div onClick={() => toggle

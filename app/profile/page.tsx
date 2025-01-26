@@ -16,13 +16,38 @@ export default function Profile() {
     favoriteActivities: "",
   })
 
+  const [message, setMessage] = useState(""); // State for feedback messages
+
+  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setProfile((prevState) => ({ ...prevState, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    try{
+      const response = await fetch('http://127.0.0.1:5000/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profile)
+      });
+  
+      const result = await response.json();
+
+      setMessage("Profile updated successfully!");
+
+      console.log(result)
+    }
+    catch (error) {
+      console.log('ERROR', error);
+
+      setMessage("Something went wrong");
+    }
     
   }
 
@@ -66,13 +91,17 @@ export default function Profile() {
               />
             </div>
           </div>
+          <Button className="w-full" type="submit" onClick={handleSubmit}>
+            Update Profile
+          </Button>
         </form>
       </CardContent>
+
       <CardFooter>
-        <Button className="w-full" type="submit" onClick={handleSubmit}>
-          Update Profile
-        </Button>
+        {message && <p className="text-center text-sm text-gray-600">{message}</p>}
       </CardFooter>
+
+
     </Card>
   )
 }
