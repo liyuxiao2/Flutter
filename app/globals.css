@@ -92,3 +92,13 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@font-face {
+  font-family: "Alice";
+  src: url("https://fonts.googleapis.com/css2?family=Alice&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap") format("truetype");
+}
+
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap") format("truetype");
+}
