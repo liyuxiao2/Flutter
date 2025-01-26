@@ -11,10 +11,9 @@ export default function Home() {
           <Link href="/plan">Plan a Date</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/maps">maps</Link>
+          <Link href="/choices">choices</Link>
         </Button>
       </div>
     </div>
   )
 }
-
