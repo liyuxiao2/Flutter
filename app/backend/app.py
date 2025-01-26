@@ -49,11 +49,11 @@ def generate_plan():
             return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
         
         
-        budget = data.get("budget", "Moderate")
-        time = data.get("time", "Evening")
-        style = data.get("style", "Romantic")
+        budget = data.get("budget", "100")
+        time = data.get("time", "3 hours")
+        style = data.get("style", [])
         location = data.get("location", "Markham ON")
-        dietary = data.get("dietary", "None")
+        dietary = data.get("dietary", [])
         inspiration = data.get("inspiration", [])
         
         if not isinstance(inspiration, list):
