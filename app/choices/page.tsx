@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { FormDisplay } from "../FormData/page";
+import Link from "next/link";
 
 interface Activity {
   name: string;
@@ -64,9 +65,11 @@ const ActivityTimeline: React.FC = () => {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white shadow-sm px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button className="p-1">
-            <span>&larr;</span>
-          </button>
+          <Link href = "/" passHref>
+            <button className="p-1">
+              <span>&larr;</span>
+            </button>
+          </Link>
           <h1 className="text-lg font-semibold">Search Results</h1>
         </div>
         <button className="p-1">
