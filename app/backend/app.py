@@ -61,7 +61,7 @@ def generate_plan():
         - Dietary Preferences/Allergies: {dietary}
         - Inspiration: {inspiration}
 
-        Provide a detailed plan, where each activity and restaurant is an individual entry. Include at least **10 distinct activities** and **10 distinct restaurants**. Output the response in valid JSON format with the following structure:
+        Provide a detailed plan, where each activity and restaurant is an individual entry. Include at least ** 6 distinct activities** and ** 4 distinct restaurants**. Output the response in valid JSON format with the following structure:
         {{
             "activities": [
                 {{
