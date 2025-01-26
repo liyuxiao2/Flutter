@@ -3,6 +3,9 @@
 import Image from 'next/image'
 import homeBkg from '../images/home bkg.png'
 
+import plan from '../images/plan.png'
+import date from '../images/date.jpg'
+
 export default function Home() {
   return (
     <main className="absolute top-0 left-0 right-0 min-h-screen bg-[#FBFBFB]">
@@ -22,7 +25,7 @@ export default function Home() {
                 </h1>
                 <p className="font-['Instrument_Sans'] text-lg md:text-xl w-3xs" >
                 Feel the connection in the <span className="text-[#97AEEF] font-bold italic">moment</span> of being{" "}
-                <span className="text-[#97AEEF] font-bold italic">together</span>.<br /> Plan the perfect date powered by XX.
+                <span className="text-[#97AEEF] font-bold italic">together</span>.<br /> Plan the perfect date powered by Flutter.
                 </p>
             </div>
         </section>
@@ -40,27 +43,8 @@ export default function Home() {
           </div>
           <div className="md:w-1/3 md:flex-shrink-0">
             <Image
-              src="/placeholder.svg?height=300&width=169"
+              src={plan}
               alt="Planning illustration"
-              width={169}
-              height={300}
-              className="w-full h-auto bg-[#474747] rounded-lg"
-            />
-          </div>
-        </section>
-
-        {/* Pick Section */}
-        <section className="flex flex-col md:flex-row md:items-center gap-8">
-          <div className="md:flex-grow">
-            <h2 className="font-['Alice'] text-3xl text-[#474747] mb-4">Pick</h2>
-            <p className="font-['Instrument_Sans'] text-[#474747] leading-relaxed">
-              Choose your favourite options from a list of diverse options that we know matches your vibe.
-            </p>
-          </div>
-          <div className="md:w-1/3 md:flex-shrink-0">
-            <Image
-              src="/placeholder.svg?height=300&width=169"
-              alt="Selection illustration"
               width={169}
               height={300}
               className="w-full h-auto bg-[#474747] rounded-lg"
@@ -79,7 +63,7 @@ export default function Home() {
           </div>
           <div className="md:w-1/3 md:flex-shrink-0">
             <Image
-              src="/placeholder.svg?height=300&width=169"
+              src={date}
               alt="Adventure illustration"
               width={169}
               height={300}
