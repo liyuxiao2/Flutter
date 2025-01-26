@@ -11,9 +11,6 @@ export default function Home() {
           <Link href="/plan">Plan a Date</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/maps">maps</Link>
-        </Button>
-        <Button asChild variant="outline">
           <Link href="/choices">choices</Link>
         </Button>
       </div>

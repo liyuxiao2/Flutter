@@ -61,7 +61,7 @@ def generate_plan():
         - Dietary Preferences/Allergies: {dietary}
         - Inspiration: {inspiration}
 
-        Provide a detailed plan, where each activity and restaurant is an individual entry. Output the response in valid JSON format with the following structure:
+        Provide a detailed plan, where each activity and restaurant is an individual entry. Include at least **10 distinct activities** and **10 distinct restaurants**. Output the response in valid JSON format with the following structure:
         {{
             "activities": [
                 {{
@@ -87,6 +87,7 @@ def generate_plan():
 
         Ensure the JSON format is valid, concise, and includes all necessary details for each entry."""
 
+
         # Generate a response using OpenAI API
         response = openai.chat.completions.create(
             model="gpt-4",
@@ -101,27 +102,25 @@ def generate_plan():
         print("Generated Text:", generated_text)
 
         try:
-            # Remove triple backticks and ensure it's valid JSON
-            clean_json = generated_text.strip("```").strip("json").strip()
+            # Clean and validate the generated text
+            clean_json = re.sub(r"^```(json)?|```$", "", generated_text.strip(), flags=re.MULTILINE).strip()
             parsed_response = json.loads(clean_json)
 
             # Extract restaurant addresses
-            global_addresses = [restaurant["address"] for restaurant in parsed_response["restaurants"]]
+            global_addresses = [
+                restaurant.get("address", "Address not provided") for restaurant in parsed_response.get("restaurants", [])
+            ]
             print("Extracted Addresses:", global_addresses)
 
-            # Return the parsed JSON as the response
             return jsonify(parsed_response), 200
         except json.JSONDecodeError as e:
             print(f"Error parsing JSON: {e}")
-            return jsonify({"error": "Failed to parse JSON response"}), 500
-
-    except KeyError as e:
-        print(f"KeyError: {e}")
-        return jsonify({"error": f"Missing key: {str(e)}"}), 400
+            return jsonify({"error": "Failed to parse JSON response", "details": str(e)}), 500
 
     except Exception as e:
         print(f"Unhandled Exception: {e}")
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+
 
 
 import re
