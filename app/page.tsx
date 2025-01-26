@@ -13,8 +13,10 @@ export default function Home() {
         <Button asChild variant="outline">
           <Link href="/maps">maps</Link>
         </Button>
+        <Button asChild variant="outline">
+          <Link href="/choices">choices</Link>
+        </Button>
       </div>
     </div>
   )
 }
-
