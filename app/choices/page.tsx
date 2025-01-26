@@ -3,6 +3,8 @@
 import type React from "react";
 import { ArrowLeft, Filter, Plus, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const scrollbarHideClass = `
   [&::-webkit-scrollbar]:hidden
@@ -59,7 +61,7 @@ const ActivityTimeline: React.FC = () => {
         </button>
       </header>
 
-      {/* Categorys Timeline */}
+      {/* Categories Timeline */}
       <div className="relative px-4 py-6">
         <div className="absolute left-9 top-9 bottom-0 w-px bg-[#474747]" />
         <div className="space-y-5">
@@ -103,8 +105,8 @@ const ActivityTimeline: React.FC = () => {
                                 <span className="font-instrument text-p3 text-[#474747]">({activity.reviews}+)</span>
                               </div>
                               <div className="flex gap-2">
-                                <span className="px-2 py-0.5 rounded-full bg-[#97aeef]/20 text-sm">{activity.tag}</span>
-                                <span className="px-2 py-0.5 rounded-full bg-[#97aeef]/20 text-sm">{activity.priceRange}</span>
+                                <span className="text-white px-2 py-0.5 rounded-full bg-[#97aeef] text-sm">{activity.tag}</span>
+                                <span className="text-white px-2 py-0.5 rounded-full bg-[#97aeef] text-sm">{activity.priceRange}</span>
                               </div>
                             </div>
                             <button className="p-1 rounded-full bg-[#fc7a4b]">
@@ -123,12 +125,16 @@ const ActivityTimeline: React.FC = () => {
       </div>
 
       {/* Finalize Button */}
+      
+
       <div className="fixed bottom-6 right-6">
-        <button className="px-6 py-3 rounded-full bg-[#fc7a4b] text-white flex items-center gap-2 shadow-lg">
+      <Button asChild>
+        <Link href="/final" className="px-6 py-3 rounded-full bg-[#FC7A4B] text-white flex items-center gap-2 shadow-lg">
           <Heart className="w-5 h-5" />
           <span className="font-instrument text-p1">Finalize</span>
-        </button>
-      </div>
+        </Link>
+      </Button>
+    </div>
     </div>
   );
 };
