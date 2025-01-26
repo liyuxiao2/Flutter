@@ -14,16 +14,24 @@ export default function PlanDate() {
     budget: 80,
     time: 3,
     aesthetic: "",
+    location: "",
     allergies: "",
     inspiration: "",
   });
 
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const [tags, setTags] = useState({
+  const [tags, setTags] = useState<{
+    aesthetic: string[];
+    location: string[];
+    allergies: string[];
+    inspiration: string[];
+  }>({
     aesthetic: ["Casual", "Romantic"],
+    location: [],
     allergies: ["Peanuts", "Vegan"],
     inspiration: ["Joanna's Pinterest Board"],
   });
+  
 
   const [loading, setLoading] = useState(false);
   const [responseData, setResponseData] = useState<any>(null);
@@ -40,15 +48,19 @@ export default function PlanDate() {
 
   const addTag = (section: keyof typeof tags, value: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (value && !tags[section].includes(value)) {
+    const trimmedValue = value.trim();
+  
+    if (trimmedValue && !tags[section].includes(trimmedValue)) {
       setTags((prev) => ({
         ...prev,
-        [section]: [...prev[section], value],
+        [section]: [...(prev[section] as string[]), trimmedValue], // Explicitly assert type as string[]
       }));
-      setFormData((prev) => ({ ...prev, [section]: "" }));
+      setFormData((prev) => ({ ...prev, [section]: "" })); // Reset the corresponding input field
     }
   };
+  
 
+  
   const removeTag = (section: keyof typeof tags, tag: string) => {
     setTags((prev) => ({
       ...prev,
@@ -61,11 +73,13 @@ export default function PlanDate() {
       budget: 80,
       time: 3,
       aesthetic: "",
+      location: "",
       allergies: "",
       inspiration: "",
     });
     setTags({
       aesthetic: [],
+      location: [],
       allergies: [],
       inspiration: [],
     });
@@ -75,13 +89,8 @@ export default function PlanDate() {
     setLoading(true);
     setError(null);
     setResponseData(null);
-
+  
     try {
-      // Convert tags into lists
-      const aestheticTags = tags.aesthetic;
-      const allergiesTags = tags.allergies;
-      const inspirationTags = tags.inspiration;
-
       const response = await fetch("http://127.0.0.1:5000/plan", {
         method: "POST",
         headers: {
@@ -90,18 +99,18 @@ export default function PlanDate() {
         body: JSON.stringify({
           budget: formData.budget.toString(),
           time: `${formData.time} hours`,
-          style: aestheticTags,
-          location: "Markham, Ontario", // Default location, can be made dynamic later
-          dietary: allergiesTags,
-          inspiration: inspirationTags,
+          style: tags.aesthetic,
+          location: tags.location, // Send location tags to the backend
+          dietary: tags.allergies,
+          inspiration: tags.inspiration,
         }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
       }
-
+  
       const result = await response.json();
       setResponseData(result);
     } catch (error) {
@@ -111,6 +120,7 @@ export default function PlanDate() {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="absolute left-0 right-0 top-0 bg-[F5F4F4] border-t">
@@ -298,6 +308,80 @@ export default function PlanDate() {
               </AnimatePresence>
             </div>
           </Card>
+
+          {/* Location Card */}
+          <Card className="shadow-sm rounded-2xl">
+            <div className="w-full p-6">
+              <div onClick={() => toggleSection("location")} className="w-full cursor-pointer">
+                <div className="flex justify-between items-center">
+                  <h2 className={`font-serif ${expandedSection === "location" ? "text-3xl" : "text-2xl"}`}>
+                    Location
+                  </h2>
+                  {(!expandedSection || expandedSection !== "location") && (
+                    <span className="text-gray-500">Add Location</span>
+                  )}
+                </div>
+              </div>
+              <AnimatePresence>
+                {expandedSection === "location" && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-600 mb-4">Where you're planning your date</p>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {tags.location.map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="bg-[#97AEEF] text-white hover:bg-[#7B97E8]"
+                            onClick={() => removeTag("location", tag)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") removeTag("location", tag);
+                            }}
+                            tabIndex={0}
+                          >
+                            {tag} ×
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="relative">
+                        <Input
+                          value={formData.location}
+                          onChange={handleChange}
+                          name="location"
+                          placeholder="Add a city, venue, or area..."
+                          className="pr-12"
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && formData.location.trim()) {
+                              addTag("location", formData.location.trim());
+                            }
+                          }}
+                        />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-orange-100 hover:bg-orange-200"
+                          onClick={(e) => {
+                            if (formData.location.trim()) addTag("location", formData.location.trim());
+                          }}
+                        >
+                          <Heart className="h-4 w-4 text-[#FC7A4B]" />
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </Card>
+
+
 
           {/* Allergies Card */}
           <Card className="shadow-sm rounded-2xl">

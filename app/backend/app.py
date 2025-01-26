@@ -52,7 +52,7 @@ def generate_plan():
         budget = data.get("budget", "100")
         time = data.get("time", "3 hours")
         style = data.get("style", [])
-        location = data.get("location", "Markham ON")
+        location = data.get("location", [])
         dietary = data.get("dietary", [])
         inspiration = data.get("inspiration", [])
         
@@ -189,8 +189,6 @@ def getLongLat(location):
         print(f"Error extracting coordinates: {e}")
         return None
 
-# Test the function
-print(getLongLat("Markham, Ontario, Canada"))
 
 
       
