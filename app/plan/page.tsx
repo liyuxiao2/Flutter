@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -8,10 +8,11 @@ import { Card } from "@/components/ui/card";
 import { ChevronLeft, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link"
-import { useRouter } from 'next/navigation';
+import Image from 'next/image'
+import planBkg from '../images/plan bkg.png'
+
 
 export default function PlanDate() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     budget: 80,
     time: 3,
@@ -114,14 +115,7 @@ export default function PlanDate() {
       }
   
       const result = await response.json();
-      console.log('result', result);
       setResponseData(result);
-      // router.push("/choices");
-    const queryParams = new URLSearchParams({
-      categories: JSON.stringify(result.restaurants || []), // Default to empty array if undefined
-      activities: JSON.stringify(result.activities || []), // Default to empty array if undefined
-    });
-    router.push(`/choices?${queryParams.toString()}`);
     } catch (error) {
       console.error("Error:", error);
       setError(error instanceof Error ? error.message : "An unknown error occurred");
@@ -132,28 +126,31 @@ export default function PlanDate() {
   
 
   return (
-    <div className="absolute left-0 right-0 top-0 bg-[F5F4F4] border-t">
-      {/* Header (remains the same) */}
-      <div className="flex justify-center items-center bg-black h-[280px]">
-        <Link href="/">
-          <Button variant="ghost" className="m-4 text-white hover:text-white/80" size="icon">
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
-        </Link>
-        <div className="p-8 text-white">
+    <div className="absolute left-0 right-0 top-0 bg-[#F5F4F4] border-t">
+      {/* Header */}
+      <div className="relative flex justify-center items-center bg-black h-screen md:h-[600px] pt-20 pr-24">
+        <Image
+          src={planBkg}
+          alt="Hero background"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-30" /> {/* Overlay for better text visibility */}
+        <div className="relative z-10 text-white text-left">
           <h1 className="text-6xl font-bold mb-4">
-            Plan <span className="text-[#FC7A4B]">the</span> date.
+            Plan <span className="text-[#FC7A4B] italic">the</span> date.
           </h1>
-          <p className="text-xl text-gray-300 max-w-md">
-            Tell us what you're looking for and we'll give you expert recommendations based on what we know they like.
+          <p className="text-xl text-gray-300 max-w-md mx-auto">
+          You know, the date where you can't stop feeling butterflies and you know you've met the one. Bring that moment to life by telling us about yourself.
           </p>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 pb-24 drop-shadow-[0_2px_6px_rgba(0,0,0,0.05)]">
-        <div className="max-w-2xl mx-auto px-4 space-y-4 p-4">
-        <div className="flex-1 pb-24 drop-shadow-[0_2px_6px_rgba(0,0,0,0.05)]">
+      <div className="flex-1 pb-24 drop-shadow-[0_2px_6px_rgba(0,0,0,0.02)]">
+        <div className="max-w-2xl mx-auto px-4 space-y-4 p-24">
+        <div className="flex-1 pb-24 drop-shadow-[0_2px_6px_rgba(0,0,0,0.0)]">
         <div className="max-w-2xl mx-auto px-4 space-y-4 p-4">
          {/* Budget Card */}
          <Card className="shadow-sm rounded-2xl">
@@ -175,8 +172,8 @@ export default function PlanDate() {
                     transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-4">
-                      <p className="text-sm text-gray-600 mb-4">Find the perfect date for any budget</p>
+                    <div className="mt-1">
+                      <p className="text-md text-gray-600 mb-4">Find the perfect date for any budget</p>
                       <input
                         type="range"
                         min="0"
@@ -226,8 +223,8 @@ export default function PlanDate() {
                     transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-4">
-                      <p className="text-sm text-gray-600 mb-4">
+                    <div className="mt-1">
+                      <p className="text-md text-gray-600 mb-4">
                         From a quick meal to a day trip around the city we've got you covered
                       </p>
                       <input
@@ -274,27 +271,15 @@ export default function PlanDate() {
                     transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-4">
-                      <p className="text-sm text-gray-600 mb-4">Describe what vibe you're going for</p>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {tags.aesthetic.map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="bg-[#97AEEF] text-white hover:bg-[#7B97E8]"
-                            onClick={() => removeTag("aesthetic", tag)}
-                          >
-                            {tag} ×
-                          </Badge>
-                        ))}
-                      </div>
+                    <div className="mt-1">
+                      <p className="text-md text-gray-600 mb-2">Describe what vibe you're going for</p>
                       <div className="relative">
                         <Input
                           value={formData.aesthetic}
                           onChange={handleChange}
                           name="aesthetic"
                           placeholder="Outdoors, fancy, 2000s.."
-                          className="pr-12"
+                          className="rounded-full pr-12"
                           onClick={(e) => e.stopPropagation()}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -312,6 +297,18 @@ export default function PlanDate() {
                         </Button>
                       </div>
                     </div>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                        {tags.aesthetic.map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="bg-[#97AEEF] text-sm text-white hover:bg-[#7B97E8]"
+                            onClick={() => removeTag("aesthetic", tag)}
+                          >
+                            {tag} ×
+                          </Badge>
+                        ))}
+                      </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -340,9 +337,9 @@ export default function PlanDate() {
                     transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-4">
-                      <p className="text-sm text-gray-600 mb-4">Where you're planning your date</p>
-                      <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="mt-2">
+                      <p className="text-md text-gray-600 mb-2">Where you're planning your date</p>
+                      <div className="flex flex-wrap gap-2 mb-0">
                         {tags.location.map((tag) => (
                           <Badge
                             key={tag}
@@ -364,7 +361,7 @@ export default function PlanDate() {
                           onChange={handleChange}
                           name="location"
                           placeholder="Add a city, venue, or area..."
-                          className="pr-12"
+                          className="rounded-full pr-12"
                           onClick={(e) => e.stopPropagation()}
                           onKeyDown={(e) => {
                             if (e.key === "Enter" && formData.location.trim()) {
@@ -414,26 +411,14 @@ export default function PlanDate() {
                     transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-4">
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {tags.allergies.map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="bg-[#97AEEF] text-white hover:bg-[#7B97E8]"
-                            onClick={() => removeTag("allergies", tag)}
-                          >
-                            {tag} ×
-                          </Badge>
-                        ))}
-                      </div>
+                    <div className="mt-2">
                       <div className="relative">
                         <Input
                           value={formData.allergies}
                           onChange={handleChange}
                           name="allergies"
                           placeholder="Search here"
-                          className="pr-12"
+                          className="rounded-full pr-12"
                           onClick={(e) => e.stopPropagation()}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -449,6 +434,18 @@ export default function PlanDate() {
                         >
                           <Heart className="h-4 w-4 text-[#FC7A4B]" />
                         </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {tags.allergies.map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="text-sm bg-[#97AEEF] text-white hover:bg-[#7B97E8]"
+                            onClick={() => removeTag("allergies", tag)}
+                          >
+                            {tag} ×
+                          </Badge>
+                        ))}
                       </div>
                     </div>
                   </motion.div>
@@ -479,29 +476,17 @@ export default function PlanDate() {
                     transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-4">
-                      <p className="text-sm text-gray-600 mb-4">
-                        Link Pinterest boards or pictures of things you both like
+                    <div className="mt-2">
+                      <p className="text-md text-gray-600 mb-2">
+                        Upload pictures of your dream date 
                       </p>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {tags.inspiration.map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="bg-[#97AEEF] text-white hover:bg-[#7B97E8]"
-                            onClick={() => removeTag("inspiration", tag)}
-                          >
-                            {tag} ×
-                          </Badge>
-                        ))}
-                      </div>
                       <div className="relative">
                         <Input
                           value={formData.inspiration}
                           onChange={handleChange}
                           name="inspiration"
                           placeholder="Pinterest.com/inspiration"
-                          className="pr-12"
+                          className="rounded-full pr-12"
                           onClick={(e) => e.stopPropagation()}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -517,6 +502,18 @@ export default function PlanDate() {
                         >
                           <Heart className="h-4 w-4 text-[#FC7A4B]" />
                         </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {tags.inspiration.map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="text-sm bg-[#97AEEF] text-white hover:bg-[#7B97E8]"
+                            onClick={() => removeTag("inspiration", tag)}
+                          >
+                            {tag} ×
+                          </Badge>
+                        ))}
                       </div>
                     </div>
                   </motion.div>
@@ -578,9 +575,9 @@ export default function PlanDate() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="max-w-2xl mx-auto px-10 py-4 flex justify-between items-center">
           <button 
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 underline"
             onClick={handleClearAll}
           >
             Clear All
@@ -592,7 +589,6 @@ export default function PlanDate() {
           >
             {loading ? "Planning..." : "Plan"}
           </Button>
-          
         </div>
       </div>
     </div>
