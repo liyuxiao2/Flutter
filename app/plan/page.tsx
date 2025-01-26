@@ -13,6 +13,7 @@ export default function PlanDate() {
     budget: "",
     time: "",
     style: "",
+    location: "",
     dietary: "",
     inspiration: "",
   });
@@ -93,6 +94,16 @@ export default function PlanDate() {
                 name="style"
                 placeholder="Enter style keywords"
                 value={formData.style}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="style">Location</Label>
+              <Input
+                id="location"
+                name="location"
+                placeholder="Enter in location"
+                value={formData.location}
                 onChange={handleChange}
               />
             </div>
