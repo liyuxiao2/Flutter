@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import homeBkg from './images/image.png'
+import couples from './images/couples.png'
 import Link from 'next/link'
 
 export default function Home() {

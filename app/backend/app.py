@@ -61,7 +61,7 @@ def generate_plan():
         - Dietary Preferences/Allergies: {dietary}
         - Inspiration: {inspiration}
 
-        Provide a detailed plan, where each activity and restaurant is an individual entry. Include at least ** 6 distinct activities** and ** 4 distinct restaurants**. Output the response in valid JSON format with the following structure:
+        Provide a detailed plan, where each activity and restaurant is an individual entry. Include at least ** 5 distinct activities** and ** 3 distinct restaurants**. Output the response in valid JSON format with the following structure:
         {{
             "activities": [
                 {{
@@ -87,7 +87,6 @@ def generate_plan():
 
         Ensure the JSON format is valid, concise, and includes all necessary details for each entry."""
 
-
         # Generate a response using OpenAI API
         response = openai.chat.completions.create(
             model="gpt-4",
@@ -106,11 +105,17 @@ def generate_plan():
             clean_json = re.sub(r"^```(json)?|```$", "", generated_text.strip(), flags=re.MULTILINE).strip()
             parsed_response = json.loads(clean_json)
 
-            # Extract restaurant addresses
-            global_addresses = [
-                restaurant.get("address", "Address not provided") for restaurant in parsed_response.get("restaurants", [])
-            ]
-            print("Extracted Addresses:", global_addresses)
+            # Modify the restaurant addresses in the parsed response
+            for restaurant in parsed_response.get("restaurants", []):
+                full_address = restaurant.get("address", "")
+                # Extract the shortened address using regex
+                match = re.search(r"^\d+\s[\w\s]+(?:\s(?:[A-Z]|[a-z])+\b)?", full_address)
+                if match:
+                    restaurant["address"] = match.group(0)  # Update the address field
+                else:
+                    restaurant["address"] = "Address not provided"  # Fallback if regex fails
+
+            print("Modified Response with Shortened Addresses:", parsed_response)
 
             return jsonify(parsed_response), 200
         except json.JSONDecodeError as e:
@@ -120,7 +125,6 @@ def generate_plan():
     except Exception as e:
         print(f"Unhandled Exception: {e}")
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
-
 
 
 import re
