@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -8,8 +8,10 @@ import { Card } from "@/components/ui/card";
 import { ChevronLeft, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link"
+import { useRouter } from 'next/navigation';
 
 export default function PlanDate() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     budget: 80,
     time: 3,
@@ -112,7 +114,14 @@ export default function PlanDate() {
       }
   
       const result = await response.json();
+      console.log('result', result);
       setResponseData(result);
+      // router.push("/choices");
+    const queryParams = new URLSearchParams({
+      categories: JSON.stringify(result.restaurants || []), // Default to empty array if undefined
+      activities: JSON.stringify(result.activities || []), // Default to empty array if undefined
+    });
+    router.push(`/choices?${queryParams.toString()}`);
     } catch (error) {
       console.error("Error:", error);
       setError(error instanceof Error ? error.message : "An unknown error occurred");
@@ -583,6 +592,7 @@ export default function PlanDate() {
           >
             {loading ? "Planning..." : "Plan"}
           </Button>
+          
         </div>
       </div>
     </div>
