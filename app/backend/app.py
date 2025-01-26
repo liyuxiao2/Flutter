@@ -3,13 +3,13 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import openai
-from openai import OpenAI
 import json
+import re
 
-
+# Load environment variables
+load_dotenv()
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
-
 
 app = Flask(__name__)
 
@@ -19,47 +19,12 @@ CORS(
     supports_credentials=True
 )
 
-
-
-
-
-user_profiles = {}
-
-
-
-@app.route('/profile', methods=['POST'])
-def update_profile():
-    try:
-        # Parse JSON data from the request
-        data = request.json
-
-        # Validate required fields
-        required_fields = ["name", "email", "budgetPreference", "allergies", "favoriteActivities"]
-        missing_fields = [field for field in required_fields if field not in data]
-        if missing_fields:
-            return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
-
-        # Extract the user's email to identify the profile
-        email = data["email"]
-
-        # Update or create the profile in the dictionary
-        user_profiles[email] = {
-            "name": data["name"],
-            "budgetPreference": data["budgetPreference"],
-            "allergies": data["allergies"],
-            "favoriteActivities": data["favoriteActivities"]
-        }
-
-        return jsonify({"message": "Profile updated successfully!", "profile": user_profiles[email]}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    #TODO
-    
-    
+# Global variable to store addresses
+global_addresses = []
 
 @app.route('/plan', methods=['POST'])
 def generate_plan():
+    global global_addresses  # Declare global_addresses as global within the function
     try:
         print("Request received at /plan")
         
@@ -70,46 +35,31 @@ def generate_plan():
         if not data:
             return jsonify({"error": "No data provided in the request"}), 400
 
-        user_profile = data.get("profile", {})
-        profile_section = ""
-
-        if user_profile:
-            profile_section = f"""
-            User Profile Data:
-            - Name: {user_profile.get('name', 'N/A')}
-            - Email: {user_profile.get('email', 'N/A')}
-            - Budget Preference: {user_profile.get('budgetPreference', 'N/A')}
-            - Allergies: {user_profile.get('allergies', 'N/A')}
-            - Favorite Activities: {user_profile.get('favoriteActivities', 'N/A')}
-            """
-            print(f"User profile included in the prompt: {profile_section}")
-
-        required_fields = ["budget", "time", "style", "dietary", "inspiration"]
+        required_fields = ["budget", "time", "style", "location", "dietary", "inspiration"]
         missing_fields = [field for field in required_fields if field not in data]
         if missing_fields:
             return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
-        
-        
-        budget = data.get("budget", "Moderate")
-        time = data.get("time", "Evening")
-        style = data.get("style", "Romantic")
-        dietary = data.get("dietary", "None")
+
+        budget = data.get("budget", "100")
+        time = data.get("time", "3 hours")
+        style = data.get("style", [])
+        location = data.get("location", [])
+        dietary = data.get("dietary", [])
         inspiration = data.get("inspiration", [])
-        
+
         if not isinstance(inspiration, list):
             inspiration = [inspiration]  # Convert to list if it's a single string
 
-        
-        
+        exact_location = getLongLat(location)
+
         # Construct the prompt
         prompt = f"""Plan a date based on the following preferences:
         - Budget: {budget}
         - Time Constraint: {time}
         - Style Preference: {style}
+        - Location: {exact_location}
         - Dietary Preferences/Allergies: {dietary}
         - Inspiration: {inspiration}
-
-        {profile_section}
 
         Provide a detailed plan, where each activity and restaurant is an individual entry. Output the response in valid JSON format with the following structure:
         {{
@@ -118,7 +68,7 @@ def generate_plan():
                     "name": "Activity name",
                     "description": "A brief description of the activity, including its location or purpose.",
                     "time": "Suggested time for this activity (if applicable).",
-                    "GoogleReview: link to google review"
+                    "GoogleReview": "link to google review"
                 }},
                 ...
             ],
@@ -129,7 +79,7 @@ def generate_plan():
                     "address": "Restaurant address",
                     "cuisine": "Type of cuisine",
                     "rating": "Rating (if available).",
-                    "GoogleReview: link to google review"
+                    "GoogleReview": "link to google review"
                 }},
                 ...
             ]
@@ -137,49 +87,33 @@ def generate_plan():
 
         Ensure the JSON format is valid, concise, and includes all necessary details for each entry."""
 
-
         # Generate a response using OpenAI API
         response = openai.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant specialized in planning personalized dates."},
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt + " Use the image links to help style the theme around the date"},
-                    # Add multiple image links dynamically
-                    *[
-                        {
-                            "type": "image_url",
-                            "image_url": {"url": image_url},
-                        }
-                        for image_url in inspiration  # `image_links` is a list of URLs
-                    ],
-                ],
-            },
-        ],
-)
-
-        
-
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant specialized in planning personalized dates."},
+                {"role": "user", "content": prompt}
+            ]
+        )
 
         # Access the response content
         generated_text = response.choices[0].message.content
-        
-        
-        print(generated_text)
-        
-        
+        print("Generated Text:", generated_text)
+
         try:
             # Remove triple backticks and ensure it's valid JSON
             clean_json = generated_text.strip("```").strip("json").strip()
             parsed_response = json.loads(clean_json)
+
+            # Extract restaurant addresses
+            global_addresses = [restaurant["address"] for restaurant in parsed_response["restaurants"]]
+            print("Extracted Addresses:", global_addresses)
+
+            # Return the parsed JSON as the response
+            return jsonify(parsed_response), 200
         except json.JSONDecodeError as e:
             print(f"Error parsing JSON: {e}")
             return jsonify({"error": "Failed to parse JSON response"}), 500
-
-        # Return the parsed JSON as the response
-        return jsonify(parsed_response), 200
 
     except KeyError as e:
         print(f"KeyError: {e}")
@@ -188,6 +122,49 @@ def generate_plan():
     except Exception as e:
         print(f"Unhandled Exception: {e}")
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+
+
+import re
+
+def getLongLat(location):
+    prompt = f"Get the exact latitude and longitude of {location}"
+
+    # Generate a response using OpenAI API
+    response = openai.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant specialized in geographic locations."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    generated_text = response.choices[0].message.content
+    print("Generated Text:", generated_text)
+
+    try:
+        # Updated regex to match latitude and longitude in various formats
+        match = re.search(
+            r"([-+]?\d{1,2}\.\d+)\s*°?\s*[NnSs]?\s*(?:latitude)?[^\d]*([-+]?\d{1,3}\.\d+)\s*°?\s*[EeWw]?\s*(?:longitude)?",
+            generated_text
+        )
+        if match:
+            latitude = float(match.group(1))
+            longitude = float(match.group(2))
+            print("Extracted Coordinates:", latitude, longitude)
+            return latitude, longitude
+        else:
+            print("Regex failed to match. Full text:", generated_text)
+            raise ValueError("Could not extract coordinates from the text.")
+    except Exception as e:
+        print(f"Error extracting coordinates: {e}")
+        return None
+
+
+
+@app.route('/get-addresses', methods=['GET'])
+def get_addresses():
+    global global_addresses
+    return jsonify(global_addresses), 200
 
 
 if __name__ == '__main__':
