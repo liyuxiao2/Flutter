@@ -84,7 +84,7 @@ const config: Config = {
       },
       fontFamily: {
         alice: ['Alice', 'serif'],
-        instrument: ['InstrumentSans', 'sans-serif'],
+        instrument: ['Instrument Sans', 'sans-serif'],
       },
       fontSize: {
         h1: ['42px', { lineHeight: '43px' }],
