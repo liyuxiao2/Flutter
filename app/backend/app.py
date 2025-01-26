@@ -7,6 +7,9 @@ from openai import OpenAI
 import json
 
 
+load_dotenv()
+
+
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -25,37 +28,6 @@ CORS(
 
 user_profiles = {}
 
-
-
-@app.route('/profile', methods=['POST'])
-def update_profile():
-    try:
-        # Parse JSON data from the request
-        data = request.json
-
-        # Validate required fields
-        required_fields = ["name", "email", "budgetPreference", "allergies", "favoriteActivities"]
-        missing_fields = [field for field in required_fields if field not in data]
-        if missing_fields:
-            return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
-
-        # Extract the user's email to identify the profile
-        email = data["email"]
-
-        # Update or create the profile in the dictionary
-        user_profiles[email] = {
-            "name": data["name"],
-            "budgetPreference": data["budgetPreference"],
-            "allergies": data["allergies"],
-            "favoriteActivities": data["favoriteActivities"]
-        }
-
-        return jsonify({"message": "Profile updated successfully!", "profile": user_profiles[email]}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    #TODO
-    
     
 
 @app.route('/plan', methods=['POST'])
@@ -70,21 +42,8 @@ def generate_plan():
         if not data:
             return jsonify({"error": "No data provided in the request"}), 400
 
-        user_profile = data.get("profile", {})
-        profile_section = ""
 
-        if user_profile:
-            profile_section = f"""
-            User Profile Data:
-            - Name: {user_profile.get('name', 'N/A')}
-            - Email: {user_profile.get('email', 'N/A')}
-            - Budget Preference: {user_profile.get('budgetPreference', 'N/A')}
-            - Allergies: {user_profile.get('allergies', 'N/A')}
-            - Favorite Activities: {user_profile.get('favoriteActivities', 'N/A')}
-            """
-            print(f"User profile included in the prompt: {profile_section}")
-
-        required_fields = ["budget", "time", "style", "dietary", "inspiration"]
+        required_fields = ["budget", "time", "style", "location", "dietary", "inspiration"]
         missing_fields = [field for field in required_fields if field not in data]
         if missing_fields:
             return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
@@ -93,6 +52,7 @@ def generate_plan():
         budget = data.get("budget", "Moderate")
         time = data.get("time", "Evening")
         style = data.get("style", "Romantic")
+        location = data.get("location", "Markham ON")
         dietary = data.get("dietary", "None")
         inspiration = data.get("inspiration", [])
         
@@ -101,15 +61,17 @@ def generate_plan():
 
         
         
+        exact_location = getLongLat(location)
+        
         # Construct the prompt
         prompt = f"""Plan a date based on the following preferences:
         - Budget: {budget}
         - Time Constraint: {time}
         - Style Preference: {style}
+        - Location: {exact_location}
         - Dietary Preferences/Allergies: {dietary}
         - Inspiration: {inspiration}
 
-        {profile_section}
 
         Provide a detailed plan, where each activity and restaurant is an individual entry. Output the response in valid JSON format with the following structure:
         {{
@@ -190,5 +152,47 @@ def generate_plan():
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
 
 
+
+import re
+
+def getLongLat(location):
+    prompt = f"Get the exact latitude and longitude of {location}"
+
+    # Generate a response using OpenAI API
+    response = openai.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant specialized in geographic locations."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    generated_text = response.choices[0].message.content
+    print("Generated Text:", generated_text)
+    
+    try:
+        # Updated regex to handle negative longitudes
+        match = re.search(
+            r"([\d.]+)°?\s*[Nn](?:orth)?[,\s]+([-]?[\d.]+)°?\s*([EeWw])?", 
+            generated_text
+        )
+        if match:
+            latitude = float(match.group(1))
+            longitude = float(match.group(2))
+            # Adjust longitude if it's West and not already negative
+            if match.group(3) and match.group(3).upper() == "W" and longitude > 0:
+                longitude = -longitude
+            return latitude, longitude  # Return as a tuple
+        else:
+            raise ValueError("Could not extract coordinates from the text.")
+    except Exception as e:
+        print(f"Error extracting coordinates: {e}")
+        return None
+
+# Test the function
+print(getLongLat("Markham, Ontario, Canada"))
+
+
+      
 if __name__ == '__main__':
     app.run(debug=True)
