@@ -91,7 +91,7 @@ export default function Profile() {
               />
             </div>
           </div>
-          <Button className="w-full" type="submit">
+          <Button className="w-full" type="submit" onClick={handleSubmit}>
             Update Profile
           </Button>
         </form>

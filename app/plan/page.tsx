@@ -1,11 +1,12 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormDisplay } from "../FormData/page";
 
 export default function PlanDate() {
   const [formData, setFormData] = useState({
@@ -14,40 +15,47 @@ export default function PlanDate() {
     style: "",
     dietary: "",
     inspiration: "",
-  })
+  });
 
+  const [loading, setLoading] = useState(false); // Loading state for better UX
+  const [responseData, setResponseData] = useState<any>(null); // Store the response data
 
-  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prevState) => ({ ...prevState, [name]: value }))
-  }
-
-
+    const { name, value } = e.target;
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault()
+    e.preventDefault();
+    setLoading(true);
+  
+    try {
+      // Parse inspiration into an array of strings (splitting by new line)
+      const parsedFormData = {
+        ...formData,
+        inspiration: formData.inspiration.split("\n").map((line) => line.trim()).filter(Boolean), // Split and trim
+      };
 
-      try{
-        const response = await fetch('http://127.0.0.1:5000/plan', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData)
-        });
-    
-        const result = await response.json();
-
-
-        console.log(result)
+      const response = await fetch("http://127.0.0.1:5000/plan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(parsedFormData), // Sending parsed formData to backend
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      catch (error) {
-        console.log('ERROR', error);
-
-      }
+  
+      const result = await response.json(); // Directly parse the JSON response
+      setResponseData(result); // Update the state with the parsed response
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
     }
-    
+  };
 
   return (
     <Card className="w-[600px]">
@@ -103,20 +111,21 @@ export default function PlanDate() {
               <Textarea
                 id="inspiration"
                 name="inspiration"
-                placeholder="Enter inspiration links"
+                placeholder="Enter inspiration links (one per line)"
                 value={formData.inspiration}
                 onChange={handleChange}
               />
             </div>
           </div>
+          <Button className="w-full mt-4" type="submit" disabled={loading}>
+            {loading ? "Generating..." : "Generate Date Plan"}
+          </Button>
         </form>
       </CardContent>
       <CardFooter>
-        <Button className="w-full" type="submit" onClick={handleSubmit}>
-          Generate Date Plan
-        </Button>
+        {/* Pass responseData to FormDisplay */}
+        {responseData && <FormDisplay FormData={responseData} />}
       </CardFooter>
     </Card>
-  )
+  );
 }
-
