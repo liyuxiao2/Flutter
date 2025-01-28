@@ -9,11 +9,6 @@
         
 <p class="text-xl mb-6"><strong>B2B SaaS solution</strong> that empowers dating apps with AI-generated date itineraries</p>
         
-<div class="flex justify-center gap-4 mb-8">
-            <img src="https://via.placeholder.com/600x400?text=Preference+Input+Screen" style="width: 300px; margin: 0 auto;" class="rounded-lg shadow">
-            <img src="https://via.placeholder.com/600x400?text=AI-Generated+Itinerary" style="width: 300px; margin: 0 auto;" class="rounded-lg shadow">
-        </div>
-    </header>
 
 <section class="mb-8">
         <h2 class="text-2xl font-bold mb-4">✨ Key Features</h2>
