@@ -58,61 +58,29 @@ OpenAI API Key
 Installation
 Clone repository
 
-bash
-Copy
 git clone https://github.com/liyuxiao2/Flutter.git && cd Flutter
 Frontend setup:
 
-bash
-Copy
 cd frontend && npm install
 cp .env.example .env.local
 Backend setup:
 
-bash
-Copy
 cd backend && python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 Start both services:
 
-bash
-Copy
 # In frontend directory
 npm run dev
 
 # In backend directory
-flask run --port=5001
-API Integration Documentation 📚
-javascript
-Copy
-// Sample API Request
-POST /api/generate-itinerary
-{
-  "user_preferences": {
-    "budget": "$$",
-    "location": "40.7128,-74.0060",
-    "aesthetic": "industrial-chic",
-    "allergies": ["shellfish"],
-    "accessibility_needs": true
-  },
-  "partner_interests": ["art", "cocktails"]
-}
+cd app/backend
+python app.py
 
-// Sample Response
-{
-  "itinerary": [
-    {
-      "time": "7:00 PM",
-      "venue": "The Modern Art Museum",
-      "cost": "$25/person",
-      "transport": "8-min walk",
-      "description": "Contemporary art experience..."
-    },
-    // ... additional itinerary items
-  ]
-}
+
+
+
 Security & Compliance 🔒
 GDPR-compliant data handling
 
