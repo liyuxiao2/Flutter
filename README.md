@@ -1,6 +1,6 @@
 <body class="bg-white text-gray-800 max-w-4xl mx-auto p-6">
     <header class="text-center mb-8">
-        <h1 class="text-4xl font-bold mb-4">DateGenius: AI-Powered Dating Experience Architect 💘</h1>
+        <h1 class="text-4xl font-bold mb-4">Flutter: AI-Powered Dating Experience Architect 💘</h1>
         <div class="flex justify-center gap-2 mb-4">
             <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-14.2.3-black?style=flat-square&logo=next.js"></a>
             <a href="https://flask.palletsprojects.com/"><img src="https://img.shields.io/badge/Flask-3.0.2-green?style=flat-square&logo=flask"></a>
