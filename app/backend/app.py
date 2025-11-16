@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import json
 
-import models
-import services 
+from . import models
+from . import services 
 
 
 app = FastAPI()

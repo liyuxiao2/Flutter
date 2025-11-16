@@ -2,9 +2,13 @@ from mangum import Mangum
 import sys
 import os
 
-# Add the app/backend directory to the path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'app', 'backend'))
+# Add the project root to the path
+project_root = os.path.dirname(os.path.dirname(__file__))
+sys.path.insert(0, project_root)
+sys.path.insert(0, os.path.join(project_root, 'app', 'backend'))
 
-from app import app
+# Import the FastAPI app
+from app.backend.app import app
 
-handler = Mangum(app)
+# Create the handler for Vercel
+handler = Mangum(app, lifespan="off")
