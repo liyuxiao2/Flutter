@@ -1,10 +1,9 @@
 "use client"
 
 import Image from 'next/image'
-import homeBkg from '../images/home bkg.png'
-
-import plan from '../images/plan.png'
-import date from '../images/date.jpg'
+import homeBkg from '../../images/homebkg.png'
+import plan from '../../images/plan.png'
+import date from '../../images/date.jpg'
 
 export default function Home() {
   return (
