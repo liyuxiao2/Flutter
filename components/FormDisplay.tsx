@@ -57,6 +57,20 @@ export function FormDisplay({ FormData }: FormProps) {
                         <StyledBadge variant="orange">{item.time}</StyledBadge>
                       </p>
                     )}
+                    {item.type === "activity" && item.GoogleReview && (
+                      <p className="text-p2 font-[instrument sans] text-[#474747] mt-2">
+                        <StyledBadge variant="blue">
+                          <a
+                            href={item.GoogleReview}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-white"
+                          >
+                            Reviews
+                          </a>
+                        </StyledBadge>
+                      </p>
+                    )}
                     {item.type === "restaurant" && (
                       <div className="space-y-1">
                         <p className="text-p2 font-[instrument sans] text-[#474747]">

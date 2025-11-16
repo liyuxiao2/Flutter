@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image from 'next/image'
-import planBkg from '../images/plan bkg.png'
+import planBkg from '../../public/plan bkg.png'
 import { usePlanForm } from "./hooks/usePlanForm";
 import { usePlanSubmit } from "./hooks/usePlanSubmit";
 import { BudgetCard } from "@/components/plan/BudgetCard";
