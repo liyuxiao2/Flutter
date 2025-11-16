@@ -1,7 +1,10 @@
 "use client"
 
 import Link from 'next/link'
-import homeBkg from './images/image.png'
+import homeBkg from '../public/image.png'
+import date from '../public/date.jpg'
+import plan from '../public/plan.png'
+import couple from '../public/couple.jpg'
 import { HeroSection } from '@/components/shared/HeroSection'
 import { InfoSection } from '@/components/shared/InfoSection'
 import { fonts, colors } from '@/lib/styleConstants'
@@ -23,21 +26,21 @@ export default function Home() {
         <InfoSection
           title="Plan"
           description="Tell us what works for you and things you know your date will love. Then well do the hard work and our Harmony algorithm will come up with tailored activities for you."
-          image="/placeholder.svg?height=300&width=169"
+          image={plan}
           imageAlt="Planning illustration"
         />
 
         <InfoSection
           title="Pick"
           description="Choose your favourite options from a list of diverse options that we know matches your vibe."
-          image="/placeholder.svg?height=300&width=169"
+          image={couple}
           imageAlt="Selection illustration"
         />
 
         <InfoSection
           title="Venture"
           description="Follow our plan for the perfect date. From the schedule to the curated map, enjoy the moment while we do the heavylifting"
-          image="/placeholder.svg?height=300&width=169"
+          image={date}
           imageAlt="Adventure illustration"
         />
 

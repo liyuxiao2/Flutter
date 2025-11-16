@@ -1,13 +1,13 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { FormDisplay } from "@/components/FormDisplay";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DatePlanData } from "@/types";
 import { transformSearchParamsToDatePlan } from "@/lib/dataTransformers";
 
-const ActivityTimeline: React.FC = () => {
+const ActivityTimelineContent: React.FC = () => {
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState<DatePlanData>({
     activities: [],
@@ -28,6 +28,14 @@ const ActivityTimeline: React.FC = () => {
         <FormDisplay FormData={formData} />
       </div>
     </div>
+  );
+};
+
+const ActivityTimeline: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ActivityTimelineContent />
+    </Suspense>
   );
 };
 
