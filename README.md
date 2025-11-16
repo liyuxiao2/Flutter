@@ -47,10 +47,10 @@
             <div>
                 <h3 class="font-bold mb-2">Backend</h3>
                 <ul class="space-y-1 text-sm">
-                    <li>Python Flask</li>
+                    <li>Python FastAPI</li>
                     <li>OpenAI API</li>
                     <li>Google Maps Platform</li>
-                    <li>PostgreSQL + Redis</li>
+                    <li>Uvicorn</li>
                 </ul>
             </div>
         </div>
@@ -83,13 +83,26 @@ Existing Dating App                    DateGenius Integration
             
 <div>
                 <h3 class="font-bold mb-2">Installation</h3>
-                <pre class="bg-gray-100 p-4 rounded"><code>git clone https://github.com/liyuxiao2/Flutter.git && cd Flutter
-cd frontend && npm install
-cp .env.example .env.local
-cd ../backend && python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env</code></pre>
+                <pre class="bg-gray-100 p-4 rounded"><code># Clone and setup frontend
+git clone https://github.com/liyuxiao2/Flutter.git && cd Flutter
+npm install
+cp .env.example .env
+
+# Setup backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt</code></pre>
+            </div>
+
+            <div>
+                <h3 class="font-bold mb-2">Running the Application</h3>
+                <pre class="bg-gray-100 p-4 rounded"><code># Terminal 1 - Run backend
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+cd app/backend
+python app.py
+
+# Terminal 2 - Run frontend
+npm run dev</code></pre>
             </div>
         </div>
     </section>

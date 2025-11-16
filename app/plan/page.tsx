@@ -1,135 +1,30 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image'
 import planBkg from '../images/plan bkg.png'
-import { useRouter } from "next/navigation";
+import { usePlanForm } from "./hooks/usePlanForm";
+import { usePlanSubmit } from "./hooks/usePlanSubmit";
 
 export default function PlanDate() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    budget: 80,
-    time: 3,
-    aesthetic: "",
-    location: "",
-    allergies: "",
-    inspiration: "",
-  });
+  const {
+    formData,
+    setFormData,
+    tags,
+    expandedSection,
+    handleChange,
+    toggleSection,
+    addTag,
+    removeTag,
+    handleClearAll,
+  } = usePlanForm();
 
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const [tags, setTags] = useState<{
-    aesthetic: string[];
-    location: string[];
-    allergies: string[];
-    inspiration: string[];
-  }>({
-    aesthetic: ["Casual", "Romantic"],
-    location: [],
-    allergies: ["Peanuts", "Vegan"],
-    inspiration: [],
-  });
-  
-
-  const [loading, setLoading] = useState(false);
-  const [responseData, setResponseData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const toggleSection = (section: string) => {
-    setExpandedSection(expandedSection === section ? null : section);
-  };
-
-  const addTag = (section: keyof typeof tags, value: string, e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    const trimmedValue = value.trim();
-  
-    if (trimmedValue && !tags[section].includes(trimmedValue)) {
-      setTags((prev) => ({
-        ...prev,
-        [section]: [...(prev[section] as string[]), trimmedValue], // Explicitly assert type as string[]
-      }));
-      setFormData((prev) => ({ ...prev, [section]: "" })); // Reset the corresponding input field
-    }
-  };
-  
-
-  
-  const removeTag = (section: keyof typeof tags, tag: string) => {
-    setTags((prev) => ({
-      ...prev,
-      [section]: prev[section].filter((t) => t !== tag),
-    }));
-  };
-
-  const handleClearAll = () => {
-    setFormData({
-      budget: 80,
-      time: 3,
-      aesthetic: "",
-      location: "",
-      allergies: "",
-      inspiration: "",
-    });
-    setTags({
-      aesthetic: [],
-      location: [],
-      allergies: [],
-      inspiration: [],
-    });
-  };
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("http://127.0.0.1:5000/plan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          budget: formData.budget.toString(),
-          time: `${formData.time} hours`,
-          style: tags.aesthetic,
-          location: tags.location,
-          dietary: tags.allergies,
-          inspiration: tags.inspiration,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log("result", result);
-
-      // Redirect to the `/choices` page with itinerary data passed as query parameters
-      const queryParams = new URLSearchParams({
-        categories: JSON.stringify(result.restaurants || []),
-        activities: JSON.stringify(result.activities || []),
-      });
-
-      router.push(`/choices?${queryParams.toString()}`);
-    } catch (error) {
-      console.error("Error:", error);
-      setError(error instanceof Error ? error.message : "An unknown error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { loading, error, responseData, handleSubmit } = usePlanSubmit(formData, tags);
   
 
   return (

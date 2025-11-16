@@ -13,7 +13,7 @@ def getLongLat(location):
     prompt = f"Get the exact latitude and longitude of {location}"
 
     # Generate a response using Gemini API
-    model = genai.GenerativeModel('gemini-pro')
+    model = genai.GenerativeModel('gemini-2.5-flash')
     response = model.generate_content(
         f"You are a helpful assistant specialized in geographic locations.\n\n{prompt}"
     )
@@ -46,7 +46,9 @@ def generate_date_plan(budget, time, style, location, dietary, inspiration):
     if not isinstance(inspiration, list):
         inspiration = [inspiration]
 
-    exact_location = getLongLat(location)
+    # Handle location - convert list to string or use default
+    location_str = ", ".join(location) if location else "New York City"
+    exact_location = getLongLat(location_str) if location else None
 
     # Construct the prompt
     prompt = f"""Plan a date based on the following preferences:
@@ -84,7 +86,7 @@ def generate_date_plan(budget, time, style, location, dietary, inspiration):
     Ensure the JSON format is valid, concise, and includes all necessary details for each entry."""
 
     # Generate a response using Gemini API
-    model = genai.GenerativeModel('gemini-pro')
+    model = genai.GenerativeModel('gemini-2.5-flash')
     response = model.generate_content(
         f"You are a helpful assistant specialized in planning personalized dates.\n\n{prompt}"
     )
